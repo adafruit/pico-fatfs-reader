@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "pico/bootrom.h"
 #include "bsp/board.h"
 #include "tusb.h"
 
@@ -48,7 +49,6 @@ enum  {
 static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 
 void led_blinking_task(void);
-void cdc_task(void);
 
 /*------------- MAIN -------------*/
 int main(void)
@@ -60,8 +60,6 @@ int main(void)
   {
     tud_task(); // tinyusb device task
     led_blinking_task();
-
-    cdc_task();
   }
 
   return 0;
@@ -102,29 +100,6 @@ void tud_resume_cb(void)
 //--------------------------------------------------------------------+
 // USB CDC
 //--------------------------------------------------------------------+
-void cdc_task(void)
-{
-  // connected() check for DTR bit
-  // Most but not all terminal client set this when making connection
-  // if ( tud_cdc_connected() )
-  {
-    // connected and there are data available
-    if ( tud_cdc_available() )
-    {
-      // read datas
-      char buf[64];
-      uint32_t count = tud_cdc_read(buf, sizeof(buf));
-      (void) count;
-
-      // Echo back
-      // Note: Skip echo by commenting out write() and write_flush()
-      // for throughput test e.g
-      //    $ dd if=/dev/zero of=/dev/ttyACM0 count=10000
-      tud_cdc_write(buf, count);
-      tud_cdc_write_flush();
-    }
-  }
-}
 
 // Invoked when cdc when line state changed e.g connected/disconnected
 void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
@@ -132,20 +107,15 @@ void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
   (void) itf;
   (void) rts;
 
-  // TODO set some indicator
-  if ( dtr )
+  // DTR = false is counted as disconnected
+  if ( !dtr )
   {
-    // Terminal connected
-  }else
-  {
-    // Terminal disconnected
-  }
-}
+    cdc_line_coding_t coding;
+    tud_cdc_get_line_coding(&coding);
 
-// Invoked when CDC interface received data from host
-void tud_cdc_rx_cb(uint8_t itf)
-{
-  (void) itf;
+    // Implement touch1200 to reset to bootloader
+    if ( coding.bit_rate == 1200 ) reset_usb_boot(0,0);
+  }
 }
 
 //--------------------------------------------------------------------+

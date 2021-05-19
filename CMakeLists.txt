@@ -15,6 +15,13 @@ add_executable(${PROJECT}
 )
 
 target_include_directories(${PROJECT} PRIVATE src)
-target_link_libraries(${PROJECT} PRIVATE pico_stdlib pico_unique_id tinyusb_device tinyusb_board)
+target_link_libraries(${PROJECT} PRIVATE
+  pico_stdlib
+  pico_unique_id
+  tinyusb_device
+  tinyusb_board
+  pico_bootsel_via_double_reset
+  pico_fix_rp2040_usb_device_enumeration
+)
 
 pico_add_extra_outputs(${PROJECT})
