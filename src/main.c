@@ -34,10 +34,10 @@
 // MACRO CONSTANT TYPEDEF PROTYPES
 //--------------------------------------------------------------------+
 
-#define FATFS_OFFSET        (1 * 1024 * 1024)
+#define FATFS_OFFSET    (1 * 1024 * 1024)
 
 #ifndef FATFS_SIZE
-#define FATFS_SIZE          (PICO_FLASH_SIZE_BYTES - FATFS_OFFSET)
+#define FATFS_SIZE      (PICO_FLASH_SIZE_BYTES - FATFS_OFFSET)
 #endif
 
 enum
