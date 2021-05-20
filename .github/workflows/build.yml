@@ -65,10 +65,8 @@ jobs:
         cd build
         cmake -D"PICO_BOARD=${{ matrix.family }}" ..
         make
-        cd ..
-        ls build/*
 
     - uses: actions/upload-artifact@v2
       with:
         name: fatfs_reader-${{ matrix.family }}
-        path: build/fatfs_read.uf2
+        path: build/fatfs_reader.uf2
