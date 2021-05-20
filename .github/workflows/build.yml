@@ -13,18 +13,18 @@ jobs:
       matrix:
         family:
         # Alphabetical order, use board name in pico-sdk
-        #- 'adafruit_feather_rp2040'
-        #- 'adafruit_itsybitsy_rp2040'
-        #- 'adafruit_qtpy_rp2040'
+        - 'adafruit_feather_rp2040'
+        - 'adafruit_itsybitsy_rp2040'
+        - 'adafruit_qtpy_rp2040'
         - 'pico'
-        #- 'pimoroni_keybow2040'
-        #- 'pimoroni_picolipo_16mb'
-        #- 'pimoroni_picolipo_4mb'
-        #- 'pimoroni_picosystem'
-        #- 'pimoroni_tiny2040'
-        #- 'sparkfun_micromod'
-        #- 'sparkfun_promicro'
-        #- 'sparkfun_thingplus'
+        - 'pimoroni_keybow2040'
+        - 'pimoroni_picolipo_16mb'
+        - 'pimoroni_picolipo_4mb'
+        - 'pimoroni_picosystem'
+        - 'pimoroni_tiny2040'
+        - 'sparkfun_micromod'
+        - 'sparkfun_promicro'
+        - 'sparkfun_thingplus'
     steps:
     - name: Setup Python
       uses: actions/setup-python@v2
