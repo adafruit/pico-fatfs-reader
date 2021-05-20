@@ -35,6 +35,8 @@ jobs:
     - name: Checkout pico-sdk
       run: |
         git clone --depth 1 https://github.com/raspberrypi/pico-sdk ~/pico-sdk
+        cd ~/pico-sdk/
+        git submodule update --init
         echo >> $GITHUB_ENV PICO_SDK_PATH=~/pico-sdk
 
     - name: Set Toolchain URL
