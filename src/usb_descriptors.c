@@ -42,8 +42,8 @@ tusb_desc_device_t const desc_device =
 
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
 
-    .idVendor           = 0xCafe,
-    .idProduct          = 0xf00d,
+    .idVendor           = 0x239a,
+    .idProduct          = 0x80f2, // use PID of Adafruit Feather RP2040
     .bcdDevice          = 0x0100,
 
     .iManufacturer      = 0x01,
@@ -110,8 +110,8 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 char const* string_desc_arr [] =
 {
   (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
-  "TinyUSB",                     // 1: Manufacturer
-  "TinyUSB Device",              // 2: Product
+  "Adafruit",                    // 1: Manufacturer
+  "FatFS Reader",                // 2: Product
   "123456",                      // 3: Serials, should use chip ID
   "TinyUSB CDC",                 // 4: CDC Interface
   "TinyUSB MSC",                 // 5: MSC Interface
