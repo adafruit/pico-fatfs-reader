@@ -23,6 +23,7 @@
  *
  */
 
+#include <string.h>
 #include "pico/stdlib.h"
 #include "hardware/flash.h"
 
@@ -30,7 +31,7 @@
 // MACRO TYPEDEF CONSTANT ENUM DECLARATION
 //--------------------------------------------------------------------+
 
-#define FLASH_CACHE_SIZE          (4*1024)
+#define FLASH_CACHE_SIZE          (4*1024U)
 #define FLASH_CACHE_INVALID_ADDR  0xffffffff
 
 static uint32_t _fl_addr = FLASH_CACHE_INVALID_ADDR;
@@ -40,28 +41,20 @@ static uint8_t _fl_buf[FLASH_CACHE_SIZE] __attribute__((aligned(4)));
 
 void flash_read(uint32_t addr, void* buffer, uint32_t len)
 {
-  memcpy(buffer, XIP_BASE+addr, len);
+  memcpy(buffer, (void*) (XIP_BASE + addr), len);
 }
 
-#if 0
 void flash_flush(void)
 {
   if ( _fl_addr == FLASH_CACHE_INVALID_ADDR ) return;
 
-  //printf("Erase and Write at 0x%08X", _fl_addr);
-
-  // Check if contents already matched
-  if ( 0 != memcmp(_fl_buf, verify_buf, verify_sz) )
+  // Only erase and write if contents does not matches
+  if ( 0 != memcmp(_fl_buf, (void*) (XIP_BASE + _fl_addr), FLASH_CACHE_SIZE) )
   {
-    esp_partition_erase_range(_part_ota0, _fl_addr, FLASH_CACHE_SIZE);
-    esp_partition_write(_part_ota0, _fl_addr, _fl_buf, FLASH_CACHE_SIZE);
-  }
+    //printf("Erase and Write at 0x%08X", _fl_addr);
 
-  // skip erase & write if content already matches
-  if ( !content_matches )
-  {
-    esp_partition_erase_range(_part_ota0, _fl_addr, FLASH_CACHE_SIZE);
-    esp_partition_write(_part_ota0, _fl_addr, _fl_buf, FLASH_CACHE_SIZE);
+    flash_range_erase(_fl_addr, FLASH_CACHE_SIZE);
+    flash_range_program(_fl_addr, _fl_buf, FLASH_CACHE_SIZE);
   }
 
   _fl_addr = FLASH_CACHE_INVALID_ADDR;
@@ -81,4 +74,3 @@ void flash_write (uint32_t addr, void const *data, uint32_t len)
 
   memcpy(_fl_buf + (addr & (FLASH_CACHE_SIZE - 1)), data, len);
 }
-#endif

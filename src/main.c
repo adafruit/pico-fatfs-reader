@@ -35,7 +35,6 @@
 //--------------------------------------------------------------------+
 
 #define FATFS_OFFSET        (1 * 1024 * 1024)
-#define FATFS_START_ADDR    (XIP_BASE + FATFS_OFFSET)
 
 #ifndef FATFS_SIZE
 #define FATFS_SIZE          (PICO_FLASH_SIZE_BYTES - FATFS_OFFSET)
@@ -48,7 +47,9 @@ enum
 };
 
 // protoypes from flash.c
-void flash_read(uint32_t addr, void* buffer, uint32_t len);
+void flash_read (uint32_t addr, void* buffer, uint32_t len);
+void flash_write(uint32_t addr, void const *data, uint32_t len);
+void flash_flush(void);
 
 //--------------------------------------------------------------------+
 //
@@ -96,7 +97,10 @@ void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
 int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize)
 {
   (void) lun;
-  flash_read(FATFS_OFFSET + lba*BLOCK_SIZE + offset, buffer, bufsize);
+
+  uint32_t const addr = FATFS_OFFSET + lba*BLOCK_SIZE + offset;
+  flash_read(addr, buffer, bufsize);
+
   return bufsize;
 }
 
@@ -105,12 +109,17 @@ int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void* buff
 int32_t tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize)
 {
   (void) lun;
-  (void) lba; (void) offset; (void) buffer;
 
-//  uint8_t* addr = msc_disk[lba] + offset;
-//  memcpy(addr, buffer, bufsize);
+  uint32_t const addr = FATFS_OFFSET + lba*BLOCK_SIZE + offset;
+  flash_write(addr, buffer, bufsize);
 
   return bufsize;
+}
+
+void tud_msc_write10_complete_cb(uint8_t lun)
+{
+  (void) lun;
+  flash_flush();
 }
 
 // Invoked when received SCSI_CMD_INQUIRY
