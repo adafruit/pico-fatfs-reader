@@ -65,6 +65,8 @@ jobs:
         cd build
         cmake -D"PICO_BOARD=${{ matrix.family }}" ..
         make
+        cd ..
+        ls build/*
 
     - uses: actions/upload-artifact@v2
       with:
