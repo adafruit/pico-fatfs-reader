@@ -4,6 +4,9 @@ on:
   pull_request:
   push:
   repository_dispatch:
+  release:
+    types:
+      - created
 
 jobs:
   build:
@@ -11,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        family:
+        board:
         # Alphabetical order, use board name in pico-sdk
         - 'adafruit_feather_rp2040'
         - 'adafruit_itsybitsy_rp2040'
@@ -63,10 +66,22 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -D"PICO_BOARD=${{ matrix.family }}" ..
+        cmake -D"PICO_BOARD=${{ matrix.board }}" ..
         make
+        cp fatfs_reader.uf2 ../${{ matrix.board }}-fatfs_reader.uf2
 
     - uses: actions/upload-artifact@v2
       with:
-        name: fatfs_reader-${{ matrix.family }}
-        path: build/fatfs_reader.uf2
+        name: ${{ matrix.board }}-fatfs_reader
+        path: ${{ matrix.board }}-fatfs_reader.uf2
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      if: ${{ github.event_name == 'release' }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ${{ matrix.board }}-fatfs_reader.uf2
+        asset_name: ${{ matrix.board }}-fatfs_reader.uf2
+        asset_content_type: application/x-binary
