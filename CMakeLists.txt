@@ -10,7 +10,7 @@ pico_sdk_init()
 
 add_executable(${PROJECT}
     src/main.c
-    src/msc_disk.c
+    src/flash.c
     src/usb_descriptors.c
 )
 
